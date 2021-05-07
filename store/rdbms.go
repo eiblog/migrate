@@ -75,12 +75,12 @@ func (db rdbms) StoreEiBlog(to Store, blog interface{}) error {
 			return err
 		}
 		// blogger
-		err = client.Create(data.Blogger).Error
+		err = client.Create(&data.Blogger).Error
 		if err != nil {
 			return err
 		}
 		// account
-		err = client.Create(data.Account).Error
+		err = client.Create(&data.Account).Error
 		if err != nil {
 			return err
 		}
