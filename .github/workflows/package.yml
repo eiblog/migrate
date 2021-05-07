@@ -1,6 +1,9 @@
 name: release & package
 
-on: push
+on:
+ push:
+   tags:
+      - "v*"
 
 jobs:
   package:
@@ -23,6 +26,7 @@ jobs:
       run: ./dist.sh
     - name: Release push
       uses: softprops/action-gh-release@v1
+      if: startsWith(github.ref, 'refs/tags/')
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
