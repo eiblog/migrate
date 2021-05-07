@@ -20,7 +20,7 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-go-
     - name: Package tar
-      run: dist.sh
+      run: ./dist.sh
     - name: Release push
       uses: softprops/action-gh-release@v1
       env:
