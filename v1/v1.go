@@ -25,11 +25,15 @@ type Account struct {
 	LoginTime  time.Time // 最后登录时间
 	LogoutTime time.Time // 登出时间
 	LoginIP    string    // 最后登录ip
-	// 博客信息
+	Blogger              // 博客信息r
+}
+
+// Blogger blooger
+type Blogger struct {
 	BlogName  string // 博客名
 	SubTitle  string // SubTitle
 	BeiAn     string // 备案号
-	BTitle    string // 底部title
+	BTitle    string // 底部titleg
 	Copyright string // 版权声明
 	SeriesSay string // 专题，倒序
 	Series    []struct {
@@ -38,11 +42,8 @@ type Account struct {
 		Slug       string    // 缩略名
 		Desc       string    // 专题描述
 		CreateTime time.Time // 创建时间
-	} // 专题
+	}
 	ArchivesSay string // 归档描述
-	Archives    []struct {
-		Time time.Time
-	} // 归档
 }
 
 // Article 文章

@@ -42,7 +42,7 @@ func (db mongodb) LoadEiBlog(from Store) (interface{}, error) {
 			return nil, err
 		}
 		// articles
-		collection = client.Database(v1.DB).Collection(v1.COLLECTION_ACCOUNT)
+		collection = client.Database(v1.DB).Collection(v1.COLLECTION_ARTICLE)
 		filter = bson.M{}
 		var articles []v1.Article
 		cur, err := collection.Find(ctx, filter)
@@ -141,12 +141,10 @@ func (db mongodb) StoreEiBlog(to Store, blog interface{}) error {
 		return err
 	}
 	switch data := blog.(type) {
-	case v1.EiBlog:
-		opts := options.Update().SetUpsert(true)
+	case *v1.EiBlog:
 		// account
 		collection := client.Database(v1.DB).Collection(v1.COLLECTION_ACCOUNT)
-		filter := bson.M{"username": data.Account.Username}
-		_, err = collection.UpdateOne(ctx, filter, data.Account, opts)
+		_, err = collection.InsertOne(ctx, data.Account)
 		if err != nil {
 			return err
 		}
@@ -154,8 +152,7 @@ func (db mongodb) StoreEiBlog(to Store, blog interface{}) error {
 		collection = client.Database(v1.DB).Collection(v1.COLLECTION_ARTICLE)
 		var maxArticleID int32 = 0
 		for _, v := range data.Articles {
-			filter := bson.M{"id": v.ID}
-			_, err = collection.UpdateOne(ctx, filter, v, opts)
+			_, err = collection.InsertOne(ctx, v)
 			if err != nil {
 				return err
 			}
@@ -172,31 +169,26 @@ func (db mongodb) StoreEiBlog(to Store, blog interface{}) error {
 		}
 		// counter
 		collection = client.Database(v1.DB).Collection("COUNTERS")
-		filter = bson.M{"name": v1.COUNTER_ARTICLE}
-		update := bson.M{"nextval": maxArticleID}
-		_, err = collection.UpdateOne(ctx, filter, update, opts)
+		counter := bson.M{"name": v1.COUNTER_ARTICLE, "nextval": maxArticleID}
+		_, err = collection.InsertOne(ctx, counter)
 		if err != nil {
 			return err
 		}
-		filter = bson.M{"name": v1.COUNTER_SERIE}
-		update = bson.M{"nextval": maxSerieID}
-		_, err = collection.UpdateOne(ctx, filter, update, opts)
+		counter = bson.M{"name": v1.COUNTER_SERIE, "nextval": maxSerieID}
+		_, err = collection.InsertOne(ctx, counter)
 		if err != nil {
 			return err
 		}
-	case v2.EiBlog:
-		opts := options.Update().SetUpsert(true)
+	case *v2.EiBlog:
 		// blogger
 		collection := client.Database(v2.MongoDBName).Collection(v2.CollectionBlogger)
-		filter := bson.M{}
-		_, err = collection.UpdateOne(ctx, filter, data.Blogger, opts)
+		_, err = collection.InsertOne(ctx, data.Blogger)
 		if err != nil {
 			return err
 		}
 		// account
 		collection = client.Database(v2.MongoDBName).Collection(v2.CollectionAccount)
-		filter = bson.M{"username": data.Account.Username}
-		_, err = collection.UpdateOne(ctx, filter, data.Account, opts)
+		_, err = collection.InsertOne(ctx, data.Account)
 		if err != nil {
 			return err
 		}
@@ -204,8 +196,7 @@ func (db mongodb) StoreEiBlog(to Store, blog interface{}) error {
 		collection = client.Database(v2.MongoDBName).Collection(v2.CollectionArticle)
 		maxArticleID := 0
 		for _, v := range data.Articles {
-			filter = bson.M{"id": v.ID}
-			_, err = collection.UpdateOne(ctx, filter, v, opts)
+			_, err = collection.InsertOne(ctx, v)
 			if err != nil {
 				return err
 			}
@@ -217,8 +208,7 @@ func (db mongodb) StoreEiBlog(to Store, blog interface{}) error {
 		collection = client.Database(v2.MongoDBName).Collection(v2.CollectionSerie)
 		maxSerieID := 0
 		for _, v := range data.Series {
-			filter = bson.M{"id": v.ID}
-			_, err = collection.UpdateOne(ctx, filter, v, opts)
+			_, err = collection.InsertOne(ctx, v)
 			if err != nil {
 				return err
 			}
@@ -228,15 +218,13 @@ func (db mongodb) StoreEiBlog(to Store, blog interface{}) error {
 		}
 		// counter
 		collection = client.Database(v2.MongoDBName).Collection(v2.CollectionCounter)
-		filter = bson.M{"name": v2.CounterNameArticle}
-		update := bson.M{"nextval": maxArticleID}
-		_, err = collection.UpdateOne(ctx, filter, update, opts)
+		counter := bson.M{"name": v2.CounterNameArticle, "nextval": maxArticleID}
+		_, err = collection.InsertOne(ctx, counter)
 		if err != nil {
 			return err
 		}
-		filter = bson.M{"name": v2.CounterNameSerie}
-		update = bson.M{"nextval": maxSerieID}
-		_, err = collection.UpdateOne(ctx, filter, update, opts)
+		counter = bson.M{"name": v2.CounterNameSerie, "nextval": maxSerieID}
+		_, err = collection.InsertOne(ctx, counter)
 		if err != nil {
 			return err
 		}

@@ -66,7 +66,7 @@ func (db rdbms) StoreEiBlog(to Store, blog interface{}) error {
 		return err
 	}
 	switch data := blog.(type) {
-	case v2.EiBlog:
+	case *v2.EiBlog:
 		err = client.AutoMigrate(v2.Blogger{},
 			v2.Account{},
 			v2.Article{},
@@ -104,18 +104,18 @@ func (db rdbms) getClient(info Store) (*gorm.DB, error) {
 	switch info.Driver {
 	case "mysql":
 		// https://github.com/go-sql-driver/mysql
-		return gorm.Open(mysql.Open(source), &gorm.Config{})
+		return gorm.Open(mysql.Open(info.Source), &gorm.Config{})
 	case "postgres":
 		// https://github.com/go-gorm/postgres
-		return gorm.Open(postgres.Open(source), &gorm.Config{})
+		return gorm.Open(postgres.Open(info.Source), &gorm.Config{})
 	case "sqlite":
 		// github.com/mattn/go-sqlite3
-		return gorm.Open(sqlite.Open(source), &gorm.Config{})
+		return gorm.Open(sqlite.Open(info.Source), &gorm.Config{})
 	case "sqlserver":
 		// github.com/denisenkom/go-mssqldb
-		return gorm.Open(sqlserver.Open(source), &gorm.Config{})
+		return gorm.Open(sqlserver.Open(info.Source), &gorm.Config{})
 	case "clickhouse":
-		return gorm.Open(clickhouse.Open(source), &gorm.Config{})
+		return gorm.Open(clickhouse.Open(info.Source), &gorm.Config{})
 	}
 	return nil, fmt.Errorf("unsupported driver: %s", info.Driver)
 }

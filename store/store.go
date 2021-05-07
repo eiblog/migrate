@@ -22,14 +22,20 @@ type Store struct {
 	Source  string `yaml:"source"`
 }
 
+// Migrate driver->store
 var Migrate = make(map[string]migrate)
 
 func init() {
 	Migrate["mongodb"] = mongodb{}
+	Migrate["mysql"] = rdbms{}
+	Migrate["postgres"] = rdbms{}
+	Migrate["sqlite"] = rdbms{}
+	Migrate["sqlserver"] = rdbms{}
+	Migrate["clickhouse"] = rdbms{}
 }
 
-// v1ToV2 升级数据v1->v2
-func v1ToV2(v1 v1.EiBlog) v2.EiBlog {
+// V1ToV2 升级数据v1->v2
+func V1ToV2(v1 *v1.EiBlog) *v2.EiBlog {
 	blogger := v2.Blogger{
 		BlogName:    v1.Account.BlogName,
 		SubTitle:    v1.Account.SubTitle,
@@ -43,7 +49,7 @@ func v1ToV2(v1 v1.EiBlog) v2.EiBlog {
 		Username: v1.Account.Username,
 		Password: v1.Account.Password,
 		Email:    v1.Account.Email,
-		PhoneN:   v1.Account.Email,
+		PhoneN:   v1.Account.PhoneN,
 		Address:  v1.Account.Address,
 
 		LogoutAt:  v1.Account.LogoutTime,
@@ -82,7 +88,7 @@ func v1ToV2(v1 v1.EiBlog) v2.EiBlog {
 		}
 		articles = append(articles, article)
 	}
-	return v2.EiBlog{
+	return &v2.EiBlog{
 		Blogger:  blogger,
 		Account:  acct,
 		Series:   series,
